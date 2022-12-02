@@ -20,7 +20,7 @@ typedef struct {  //typedef struct lager en variabel som kan inneholde flere ele
 } julekulefarge;
 
 const byte antalljulekuler = 12;
-const byte stegmellomoppdatering = 10;
+const byte stegmellomoppdatering = 15;
 julekulefarge julekule[antalljulekuler*stegmellomoppdatering] = {};  //Her lages et array av typen julekulefarge. Et array er en rekke variabler av samme type.
 
 byte velgfarge=0;
@@ -41,22 +41,32 @@ void initminnematrise() {  //Fyll opp alle elementer i hele array med nullverdie
 void oppdaterjulekuler() {
   for (byte i=0; i<antalljulekuler;i++) {
     juletre.setPixelColor(i, juletre.Color(julekule[i*stegmellomoppdatering].R, julekule[i*stegmellomoppdatering].G, julekule[i*stegmellomoppdatering].B));
-  }
+/*    Serial.print ("Kule nr: ");
+    Serial.print(i);
+    Serial.print (" Rød: ");
+    Serial.print(julekule[i*stegmellomoppdatering].R);
+    Serial.print (" Grønn: ");
+    Serial.print(julekule[i*stegmellomoppdatering].G);
+    Serial.print (" Blå: ");
+    Serial.println(julekule[i*stegmellomoppdatering].B);*/
+      }
   juletre.show();
-  delay(10);
+  delay(5);
 }
 
 void skiftfarge() {
   velgfarge=random(3);
-//  velgfargetone=random(4)*85;  //Hvis man velger random(255) i RGB-kanaler blir det veldig mye blasse farger. Med random(4)*85 får du 0,85,170 eller 255.
-  velgfargeendring=random(64,128); //Gjør en endring i fargetone på mellom en kvart og en halv
+  velgfargetone=random(3)*126;  //Hvis man velger random(255) i RGB-kanaler blir det veldig mye blasse farger. Med random(4)*85 får du 0,85,170 eller 255.
+//  velgfargeendring=random(64,128); //Gjør en endring i fargetone på mellom en kvart og en halv
   if (velgfarge==0) {
-    velgfargetone=julekule[0].R-velgfargeendring; // Dette kan trygt gjøres i arduino, da negativ verdi av byte rundes feks: 128-129=255. Vær obs på at dette ikke nødvendigvis fungerer i alle språk og for alle mikrokontrollere.
+//    velgfargetone=julekule[0].R-velgfargeendring; // Dette kan trygt gjøres i arduino, da negativ verdi av byte rundes feks: 128-129=255. Vær obs på at dette ikke nødvendigvis fungerer i alle språk og for alle mikrokontrollere.
     if (velgfargetone>julekule[0].R) { //fargen skal tones opp
       byte endringsskala=velgfargetone-julekule[0].R;
       for (byte i=0; i<endringsskala;i++) { //for hver endring i fargetone
         for (int j=antalljulekuler*stegmellomoppdatering-1; j>0;j--){ //for hver linje i minnematrise unntatt første
           julekule[j].R=julekule[j-1].R;
+          julekule[j].G=julekule[j-1].G;
+          julekule[j].B=julekule[j-1].B;
         }
         julekule[0].R++;  //julekule[0].R økes
         oppdaterjulekuler();
@@ -64,9 +74,11 @@ void skiftfarge() {
     }
     else if (velgfargetone<julekule[0].R) {  //fargen skal tones ned
       byte endringsskala=julekule[0].R-velgfargetone;
-      for (byte i=0; i<endringsskala;i++) { //for hver endring i fargetone
+      for (byte i=0; i<endringsskala-1;i++) { //for hver endring i fargetone
         for (int j=antalljulekuler*stegmellomoppdatering-1; j>0;j--){ //for hver linje i minnematrise unntatt første
-          julekule[j].R=julekule[j-1].R; //Hver verdi i matrisen som husker forrige verdi flyttes ett hakk bak.
+          julekule[j].R=julekule[j-1].R;
+          julekule[j].G=julekule[j-1].G;
+          julekule[j].B=julekule[j-1].B;
         }
 
         julekule[0].R--;  //julekule[0].R reduseres
@@ -75,12 +87,14 @@ void skiftfarge() {
     }
   }
     else if (velgfarge==1) {
-      velgfargetone=julekule[0].R-velgfargeendring;
+//      velgfargetone=julekule[0].R-velgfargeendring;
     if (velgfargetone>julekule[0].G) { //fargen skal tones opp
       byte endringsskala=velgfargetone-julekule[0].G;
       for (byte i=0; i<endringsskala;i++) { 
         for (int j=antalljulekuler*stegmellomoppdatering-1; j>0;j--){ 
+          julekule[j].R=julekule[j-1].R;
           julekule[j].G=julekule[j-1].G;
+          julekule[j].B=julekule[j-1].B;
         }
         julekule[0].G++;  //julekule[0].G økes
         oppdaterjulekuler();
@@ -88,9 +102,11 @@ void skiftfarge() {
     }
     else if (velgfargetone<julekule[0].G) {  //fargen skal tones ned
       byte endringsskala=julekule[0].G-velgfargetone;
-      for (byte i=0; i<endringsskala;i++) { //for hver endring i fargetone
+      for (byte i=0; i<endringsskala-1;i++) { //for hver endring i fargetone
         for (int j=antalljulekuler*stegmellomoppdatering-1; j>0;j--){ //for hver linje i minnematrise unntatt første
+          julekule[j].R=julekule[j-1].R;
           julekule[j].G=julekule[j-1].G;
+          julekule[j].B=julekule[j-1].B;
         }
         julekule[0].G--;  //julekule[0].G reduseres
         oppdaterjulekuler();
@@ -98,11 +114,13 @@ void skiftfarge() {
     }
   }
     else if (velgfarge==2) {
-      velgfargetone=julekule[0].R-velgfargeendring;
+//      velgfargetone=julekule[0].R-velgfargeendring;
     if (velgfargetone>julekule[0].B) { //fargen skal tones opp
       byte endringsskala=velgfargetone-julekule[0].B;
       for (byte i=0; i<endringsskala;i++) { //for hver endring i fargetone
         for (int j=antalljulekuler*stegmellomoppdatering-1; j>0;j--){ //for hver linje i minnematrise unntatt første
+          julekule[j].R=julekule[j-1].R;
+          julekule[j].G=julekule[j-1].G;
           julekule[j].B=julekule[j-1].B;
         }
         julekule[0].B++;  //julekule[0].B økes
@@ -111,8 +129,10 @@ void skiftfarge() {
     }
     else if (velgfargetone<julekule[0].B) {  //fargen skal tones ned
       byte endringsskala=julekule[0].B-velgfargetone;
-      for (byte i=0; i<endringsskala;i++) { //for hver endring i fargetone
+      for (byte i=0; i<endringsskala-1;i++) { //for hver endring i fargetone
         for (int j=antalljulekuler*stegmellomoppdatering-1; j>0;j--){ //for hver linje i minnematrise unntatt første
+          julekule[j].R=julekule[j-1].R;
+          julekule[j].G=julekule[j-1].G;
           julekule[j].B=julekule[j-1].B;
         }
         julekule[0].B--;  //julekule[0].B reduseres
@@ -125,6 +145,7 @@ void skiftfarge() {
 void setup() {
   initminnematrise();
   juletre.begin();
+//  Serial.begin(9600);
   }
   
 void loop() {
